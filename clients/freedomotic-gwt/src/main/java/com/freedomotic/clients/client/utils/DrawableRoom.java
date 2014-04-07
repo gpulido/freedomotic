@@ -76,9 +76,8 @@ public class DrawableRoom extends DrawableElement {
     @Override
     public void OnDoubleClick(Canvas canvas)
     {
-        parentCanvas.fitToScreen(roomBounds.getWidth(), roomBounds.getHeight(), roomBounds.getMinX(), roomBounds.getMinY());
 
-
+        parentCanvas.fitToScreen(roomBounds.getWidth(), roomBounds.getHeight(), roomBounds.getCenterX(), roomBounds.getCenterY());
     }
 
     @Override
@@ -112,8 +111,12 @@ public class DrawableRoom extends DrawableElement {
             g.fill(elementBounds);
         }
         //draw the text
-        g.setColor(Color.BLACK);
-        context.fillText(roomObject.getName(), roomBounds.getMinX() + 22, roomBounds.getMinY() + 22);
+        g.setFillColor(Color.BLACK);
+        //context.setTextBaseline("top");
+        context.setFont("18px Arial");
+        g.drawString(roomObject.getName(), (int)(roomBounds.getMinX() + 22), (int)(roomBounds.getMinY() + 22));
+
+        //context.fillText(roomObject.getName(), roomBounds.getMinX() + 22, roomBounds.getMinY() + 22);
 
         //move to a method on the canvas
         paintIndex(indexContext);

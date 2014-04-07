@@ -3,7 +3,9 @@ package com.freedomotic.clients.client.utils;
 import com.google.gwt.animation.client.Animation;
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
+import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.event.dom.client.*;
+import com.google.gwt.user.client.Window;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,7 +18,9 @@ import java.util.ListIterator;
 public class ExtendedCanvas {
 
     Canvas canvas;
+    Canvas backbuffer;
     Context2d ctx;
+    Context2d backBufferContext;
 
     LinkedHashMap<String, Layer> layers = new LinkedHashMap<>();
     //we only accept one selected layer at a time.
@@ -25,43 +29,55 @@ public class ExtendedCanvas {
 
     private static int BORDER_X = 10; //the empty space around the map
     private static int BORDER_Y = 10; //the empty space around the map
-    private static int CANVAS_WIDTH = 1300 + (BORDER_X * 2);
-    private static int CANVAS_HEIGHT = 900 + (BORDER_X * 2);
+
 
     private double mScaleFactor = 1;
     private double mPosX = 0;
     private double mPosY = 0;
     //private DockLayoutPanel parent;
 
+    final CssColor redrawColor = CssColor.make("rgba(255,255,255,0.6)");
     public ExtendedCanvas() {
         canvas = Canvas.createIfSupported();
+        backbuffer = Canvas.createIfSupported();
         ctx = canvas.getContext2d();
+        backBufferContext = backbuffer.getContext2d();
     }
 
-    public static int getCANVAS_WIDTH() {
-        return CANVAS_WIDTH;
+    public int getCanvasWitdh()
+    {
+        return canvas.getParent().getOffsetWidth();
+    }
+    public int getCanvasHeight()
+    {
+        return canvas.getParent().getOffsetHeight();
     }
 
-    public static int getCANVAS_HEIGHT() {
-        return CANVAS_HEIGHT;
-    }
 
     void initCanvas()
     {
         layers.clear();
     }
 
-    void setSize(int width, int height)
+    void setSize()
     {
-        CANVAS_WIDTH = width;
-        CANVAS_HEIGHT = height;
+        int width = getCanvasWitdh();
+        int height = getCanvasHeight();
+
+        if (width == 0) {
+            width = Window.getClientHeight();
+            height = Window.getClientWidth();
+        }
+
         canvas.setWidth(width + "px");
         canvas.setHeight(height + "px");
         canvas.setCoordinateSpaceWidth(width);
         canvas.setCoordinateSpaceHeight(height);
+        backbuffer.setCoordinateSpaceWidth(width);
+        backbuffer.setCoordinateSpaceHeight(height);
         for(Layer layer: layers.values())
         {
-            layer.setSize(width, height);
+            layer.setSize();
         }
 
     }
@@ -101,10 +117,8 @@ public class ExtendedCanvas {
                 }
                 //TODO: this is wrong here. The extendedCanvas doesn't have to know about what the doubleclick does
                 //Find where to move this
-                int parentWidth = getCanvas().getParent().getOffsetWidth();
-                int parentHeight = getCanvas().getParent().getOffsetHeight();
-                setSize(parentWidth, parentHeight);
-                fitToScreen(parentWidth, parentHeight, 0, 0);
+                setSize();
+                fitToScreen(getCanvasWitdh(), getCanvasHeight(), 0, 0);
             }
         });
 
@@ -127,11 +141,15 @@ public class ExtendedCanvas {
 
 
     void draw() {
-        ctx.clearRect(0, 0, getCANVAS_WIDTH(), getCANVAS_HEIGHT());
+        backBufferContext.setFillStyle(redrawColor);
+        backBufferContext.fillRect(0, 0, getCanvasWitdh(), getCanvasHeight());
+
         for(Layer layer: layers.values())
         {
             layer.draw();
         }
+        ctx.clearRect(0, 0, getCanvasWitdh(), getCanvasHeight());
+        ctx.drawImage(backBufferContext.getCanvas(),0,0);
 
     }
 
@@ -150,40 +168,24 @@ public class ExtendedCanvas {
 
     public Context2d getContext()
     {
-        return ctx;
+        return backBufferContext;
     }
 
 
     //Adapt the "original coordinates" from freedomotic to the canvas size
     public void fitToScreen(double width, double height, double posX, double posY) {
 
-        double xSize = getCANVAS_WIDTH() - BORDER_X;
-        double ySize = getCANVAS_HEIGHT() - BORDER_Y - 200;
+        double xSize = getCanvasWitdh() - BORDER_X;
+        double ySize = getCanvasHeight() - BORDER_Y - 200;
 
-        double xPathSize = width;
-        double yPathSize = height;
-
-        double xScale = xSize / xPathSize;
-        double yScale = ySize / yPathSize;
+        double xScale = xSize / width;
+        double yScale = ySize / height;
 
         if (xScale < yScale) {
             centerAndScale(posX, posY, xScale, true);
         } else {
             centerAndScale(posX, posY, yScale, true);
         }
-        /*
-        mPosX = -posX;//MARGIN;
-        mPosY = -posY;//MARGIN;
-
-
-        if (xScale < yScale) {
-            mScaleFactor = xScale;
-        } else {
-            mScaleFactor = yScale;
-        }
-        mPosX = -posX;//MARGIN;
-        mPosY = -posY;//MARGIN;
-        */
         //updateElements();
 
     }
@@ -209,10 +211,13 @@ public class ExtendedCanvas {
 
     //region Layers Management
 
-    public Layer addLayer(String objectUUID)
+    public Layer addLayer(String objectUUID, String name)
     {
         Layer newLayer = new Layer(this, objectUUID);
+        newLayer.setName(name);
         layers.put(objectUUID, newLayer);
+        //TODO: rename setSize for a more appropiate name
+        newLayer.setSize();
         return newLayer;
 
     }
