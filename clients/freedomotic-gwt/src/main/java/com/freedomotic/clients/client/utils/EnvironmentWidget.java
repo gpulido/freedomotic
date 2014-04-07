@@ -143,6 +143,7 @@ public class EnvironmentWidget {
             if (env.getUUID().equals(envUUID)) {
                 environment = env;
                 extendedCanvas.changeLayerVisibility(env.getUUID(), true);
+                extendedCanvas.fitToScreen(environment.getWidth(),environment.getHeight(), 0, 0);
                 //this.dataInitialized = false;
             }
             else

@@ -1,5 +1,6 @@
 package com.freedomotic.clients.client.utils;
 
+import com.google.gwt.animation.client.Animation;
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.canvas.dom.client.Context2d;
 import com.google.gwt.event.dom.client.*;
@@ -164,6 +165,17 @@ public class ExtendedCanvas {
 
         double xScale = xSize / xPathSize;
         double yScale = ySize / yPathSize;
+
+        if (xScale < yScale) {
+            centerAndScale(posX, posY, xScale, true);
+        } else {
+            centerAndScale(posX, posY, yScale, true);
+        }
+        /*
+        mPosX = -posX;//MARGIN;
+        mPosY = -posY;//MARGIN;
+
+
         if (xScale < yScale) {
             mScaleFactor = xScale;
         } else {
@@ -171,9 +183,17 @@ public class ExtendedCanvas {
         }
         mPosX = -posX;//MARGIN;
         mPosY = -posY;//MARGIN;
-        updateElements();
+        */
+        //updateElements();
 
     }
+    public void centerAndScale(double posX, double posY, double scale, boolean animation)
+    {
+        MoveWithAnimation moveAnimation = new MoveWithAnimation(mPosX, mPosY, -posX, -posY, mScaleFactor,scale);
+        moveAnimation.run(1000);
+
+    }
+
 
     public double getScaleFactor() {
         return mScaleFactor;
@@ -236,4 +256,48 @@ public class ExtendedCanvas {
     }
 
     //endregion
+
+    //region Animations
+    public class MoveWithAnimation  extends Animation {
+        // initial position
+        private double startX;
+        private double startY;
+        private double endX;
+        private double endY;
+        private double vectorX;
+        private double vectorY;
+        private double startScale;
+        private double endScale;
+
+        public MoveWithAnimation(double startX, double startY, double endX, double endY, double startScale, double endScale) {
+            this.startX = startX;
+            this.startY = startY;
+            this.endX = endX;
+            this.endY = endY;
+            this.startScale = startScale;
+            this.endScale = endScale;
+
+
+
+        }
+        @Override
+        protected void onUpdate(double progress) {
+            mPosX = extractProportionalValue(progress, startX, endX);
+            mPosY = extractProportionalValue(progress, startY, endY);
+            mScaleFactor = extractProportionalValue(progress, startScale, endScale);
+
+        }
+
+        private double extractProportionalValue(double progress, double start, double end) {
+            double out = start - (start - end) * progress;
+            return out;
+        }
+
+    }
+
+    //endregion
+
+
+
 }
+

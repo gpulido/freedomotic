@@ -101,9 +101,6 @@ public class Layer  {
     public void updateElements()
     {
         for (DrawableElement de : objectsInLayer.values()) {
-            de.setScaleFactor(mparentCanvas.getScaleFactor());
-            de.setPosX(mparentCanvas.getPosX());
-            de.setPosY(mparentCanvas.getPosY());
             de.updateElement();
         }
     }

@@ -21,7 +21,7 @@ public class DrawableRoom extends DrawableElement {
 
     String textureName;
     private Rectangle2D roomBounds;
-
+    private boolean highlight = false;
 
     //TODO: create global CONSTANTS for all restapi paths
     public static final String TEXTURE_PATH = Freedomotic.RESOURCES_URL;
@@ -82,6 +82,18 @@ public class DrawableRoom extends DrawableElement {
     }
 
     @Override
+    public void OnMouseOver(Canvas canvas)
+    {
+        highlight = true;
+    }
+
+    @Override
+    public void OnMouseLeft(Canvas canvas)
+    {
+        highlight = false;
+    }
+
+    @Override
     public void paint(Context2d context, Context2d indexContext) {
 
         WebGraphics g = new WebGraphics(context);
@@ -94,6 +106,11 @@ public class DrawableRoom extends DrawableElement {
         context.setLineWidth(2); // 7 pixel line width.
         g.setColor(Color.DARK_GRAY);
         g.draw(elementBounds);
+        if (!highlight) {
+            Color c = new Color(139, 137, 137, 125);
+            g.setFillColor(c);
+            g.fill(elementBounds);
+        }
         //draw the text
         g.setColor(Color.BLACK);
         context.fillText(roomObject.getName(), roomBounds.getMinX() + 22, roomBounds.getMinY() + 22);
