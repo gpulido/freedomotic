@@ -7,6 +7,7 @@ import com.freedomotic.clients.client.widgets.LayerList;
 import com.freedomotic.clients.client.widgets.OkCancelDialogCallback;
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.core.client.Scheduler;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
@@ -69,7 +70,7 @@ public class Freedomotic implements EntryPoint {
 
         DockLayoutPanel myDockLayoutPanel = new DockLayoutPanel(Unit.EM);
         // draw the environment
-        EnvironmentWidget floorPlan = new EnvironmentWidget(myDockLayoutPanel);
+        final EnvironmentWidget floorPlan = new EnvironmentWidget(myDockLayoutPanel);
         RootLayoutPanel rootPanel = RootLayoutPanel.get();
 
         SimplePanel greenLateralPanel = new SimplePanel();
@@ -114,7 +115,15 @@ public class Freedomotic implements EntryPoint {
         myDockLayoutPanel.addEast(layerList, 17);
         myDockLayoutPanel.add(floorPlan.getCanvas());
         rootPanel.add(myDockLayoutPanel);
-        floorPlan.resizeToFit();
+        //Execute the resize when the widget is load
+        //https://groups.google.com/forum/#!topic/google-web-toolkit/WKiqka9YzLI
+        Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
+            @Override
+            public void execute() {
+                floorPlan.resizeToFit();
+            }
+        });
+
 
 
 

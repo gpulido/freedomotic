@@ -46,11 +46,11 @@ public class ExtendedCanvas {
 
     public int getCanvasWitdh()
     {
-        return canvas.getParent().getOffsetWidth();
+        return canvas.getParent().getOffsetWidth() - BORDER_X - 200;
     }
     public int getCanvasHeight()
     {
-        return canvas.getParent().getOffsetHeight();
+        return canvas.getParent().getOffsetHeight() - BORDER_Y - 200;
     }
 
 
@@ -63,11 +63,6 @@ public class ExtendedCanvas {
     {
         int width = getCanvasWitdh();
         int height = getCanvasHeight();
-
-        if (width == 0) {
-            width = Window.getClientHeight();
-            height = Window.getClientWidth();
-        }
 
         canvas.setWidth(width + "px");
         canvas.setHeight(height + "px");
@@ -174,24 +169,31 @@ public class ExtendedCanvas {
 
     //Adapt the "original coordinates" from freedomotic to the canvas size
     public void fitToScreen(double width, double height, double posX, double posY) {
-
-        double xSize = getCanvasWitdh() - BORDER_X;
-        double ySize = getCanvasHeight() - BORDER_Y - 200;
+        //TODO: check for a maximum scale
+        double xSize = getCanvasWitdh();// - BORDER_X;
+        double ySize = getCanvasHeight();// - BORDER_Y - 200;
 
         double xScale = xSize / width;
         double yScale = ySize / height;
+        double centerCanvasScaledX = (getCanvasWitdh() / 2);
+        double centerCanvasScaledY = (getCanvasHeight() / 2);
 
+        double scale;
         if (xScale < yScale) {
-            centerAndScale(posX, posY, xScale, true);
-        } else {
-            centerAndScale(posX, posY, yScale, true);
+            scale = xScale;
         }
+        else
+            scale = yScale;
+
+        double centerX = posX -  centerCanvasScaledX / scale - (BORDER_X - 100) /scale;
+        double centerY = posY -  centerCanvasScaledY / scale;
+        centerAndScale(centerX, centerY, scale, true);
         //updateElements();
 
     }
     public void centerAndScale(double posX, double posY, double scale, boolean animation)
     {
-        MoveWithAnimation moveAnimation = new MoveWithAnimation(mPosX, mPosY, -posX, -posY, mScaleFactor,scale);
+        MoveWithAnimation moveAnimation = new MoveWithAnimation(mPosX, mPosY, -posX, -posY, mScaleFactor, scale);
         moveAnimation.run(1000);
 
     }
