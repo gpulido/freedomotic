@@ -10,7 +10,10 @@ import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
+import com.google.gwt.user.client.ui.Widget;
+import com.kiouri.sliderbar.client.solution.gmap.SliderBarGMap;
 
 /**
  * Created by gpt on 1/04/14.
@@ -26,17 +29,13 @@ public class EnvironmentWidget {
     static final int refreshRate = 25;
 
     private static final double MARGIN = 50;
-    private static int BORDER_X = 10; //the empty space around the map
-    private static int BORDER_Y = 10; //the empty space around the map
-   // private static int CANVAS_WIDTH = 1300 + (BORDER_X * 2);
-   // private static int CANVAS_HEIGHT = 900 + (BORDER_X * 2);
 
-    private DockLayoutPanel parent;
+    private Widget parent;
     private ExtendedCanvas extendedCanvas;
 
     private LayerList mLayerList;
-
-    public EnvironmentWidget(DockLayoutPanel parent) {
+    SliderBarGMap sliderBarGMap;
+    public EnvironmentWidget(final Widget parent) {
 
         this.parent = parent;
         initCanvas();
@@ -69,14 +68,11 @@ public class EnvironmentWidget {
                 }
                 else
                 {
-                    //TODO: Maybe we need to center on the environment
                     extendedCanvas.fitToScreen(environment.getWidth(), environment.getHeight(), environment.getWidth()/2 ,environment.getHeight()/2);
 
                 }
             }
         });
-
-
 
     }
 
@@ -89,6 +85,8 @@ public class EnvironmentWidget {
     public void resizeToFit()
     {
         extendedCanvas.setSize();
+
+
     }
 
     void initializeData() {

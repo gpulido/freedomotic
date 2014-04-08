@@ -15,6 +15,7 @@ import com.google.gwt.resources.client.ImageResource;
 import com.google.gwt.resources.client.ImageResource.ImageOptions;
 import com.google.gwt.resources.client.ImageResource.RepeatStyle;
 import com.google.gwt.user.client.Cookies;
+import com.google.gwt.user.client.ui.AbsolutePanel;
 import com.google.gwt.user.client.ui.DockLayoutPanel;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -69,8 +70,9 @@ public class Freedomotic implements EntryPoint {
         brokerIp = Cookies.getCookie("broker_ip");
 
         DockLayoutPanel myDockLayoutPanel = new DockLayoutPanel(Unit.EM);
+        final AbsolutePanel centerPanel = new AbsolutePanel();
         // draw the environment
-        final EnvironmentWidget floorPlan = new EnvironmentWidget(myDockLayoutPanel);
+        final EnvironmentWidget floorPlan = new EnvironmentWidget(centerPanel);
         RootLayoutPanel rootPanel = RootLayoutPanel.get();
 
         SimplePanel greenLateralPanel = new SimplePanel();
@@ -111,10 +113,17 @@ public class Freedomotic implements EntryPoint {
 
         SimplePanel rightBorderpanel = new SimplePanel();
         rightBorderpanel.setStyleName("header_panel");
+
         myDockLayoutPanel.addEast(rightBorderpanel, 2);
         myDockLayoutPanel.addEast(layerList, 17);
-        myDockLayoutPanel.add(floorPlan.getCanvas());
+
+        centerPanel.add(floorPlan.getCanvas());
+        myDockLayoutPanel.add(centerPanel);
+
+
+
         rootPanel.add(myDockLayoutPanel);
+
         //Execute the resize when the widget is load
         //https://groups.google.com/forum/#!topic/google-web-toolkit/WKiqka9YzLI
         Scheduler.get().scheduleDeferred(new Scheduler.ScheduledCommand() {
@@ -123,6 +132,10 @@ public class Freedomotic implements EntryPoint {
                 floorPlan.resizeToFit();
             }
         });
+
+
+
+
 
 
 

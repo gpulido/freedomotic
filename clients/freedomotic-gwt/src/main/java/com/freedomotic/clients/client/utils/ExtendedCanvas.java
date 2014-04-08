@@ -46,11 +46,11 @@ public class ExtendedCanvas {
 
     public int getCanvasWitdh()
     {
-        return canvas.getParent().getOffsetWidth() - BORDER_X - 200;
+        return canvas.getParent().getOffsetWidth();// - BORDER_X - 200;
     }
     public int getCanvasHeight()
     {
-        return canvas.getParent().getOffsetHeight() - BORDER_Y - 200;
+        return canvas.getParent().getOffsetHeight();// - BORDER_Y - 200;
     }
 
 
@@ -185,7 +185,7 @@ public class ExtendedCanvas {
         else
             scale = yScale;
 
-        double centerX = posX -  centerCanvasScaledX / scale - (BORDER_X - 100) /scale;
+        double centerX = posX -  centerCanvasScaledX / scale;// - (BORDER_X - 100) /scale;
         double centerY = posY -  centerCanvasScaledY / scale;
         centerAndScale(centerX, centerY, scale, true);
         //updateElements();
