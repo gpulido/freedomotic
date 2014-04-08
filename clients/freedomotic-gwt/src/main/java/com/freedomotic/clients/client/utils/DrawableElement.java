@@ -50,20 +50,7 @@ public abstract class DrawableElement {
     public void draw(Context2d context, Context2d indexContext)
     {
         beforeDraw(context, indexContext);
-
-        context.save();
-        indexContext.save();
-        //TODO: if the scale and the position are linked to the extended canvas, why store on each element? Use the parentCanvasOne
-        //Also, why not just scale and translate the context once for each object?
-        context.scale(parentCanvas.getScaleFactor(), parentCanvas.getScaleFactor());
-        indexContext.scale(parentCanvas.getScaleFactor(), parentCanvas.getScaleFactor());
-        context.translate(parentCanvas.getPosX(),parentCanvas.getPosY());
-        indexContext.translate(parentCanvas.getPosX(),parentCanvas.getPosY());
-
         paint(context, indexContext);
-
-        indexContext.restore();
-        context.restore();
 
     }
 
