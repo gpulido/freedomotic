@@ -91,8 +91,14 @@ public class Layer  {
     }
     //endregion
 
-
     public void draw()
+    {
+        draw(true);
+
+
+    }
+
+    public void draw(boolean redraw)
     {
         //indexContext.clearRect(0, 0, mparentCanvas.getCanvasWitdh(),  mparentCanvas.getCanvasHeight());
         CssColor redrawColor = CssColor.make("rgba(255,255,5,255)");
@@ -108,9 +114,10 @@ public class Layer  {
             indexContext.scale(mparentCanvas.getScaleFactor(), mparentCanvas.getScaleFactor());
             context.translate(mparentCanvas.getPosX(),mparentCanvas.getPosY());
             indexContext.translate(mparentCanvas.getPosX(),mparentCanvas.getPosY());
-
-            for (DrawableElement de : objectsInLayer.values()) {
-                de.draw(context, indexContext);
+            if (redraw) {
+                for (DrawableElement de : objectsInLayer.values()) {
+                    de.draw(context, indexContext);
+                }
             }
             indexContext.restore();
             context.restore();

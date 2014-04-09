@@ -15,7 +15,7 @@ import java.util.ListIterator;
 /**
  * Created by gpt on 31/03/14.
  */
-public class ExtendedCanvas  implements MouseWheelHandler{
+public class ExtendedCanvas  implements MouseWheelHandler , MouseDownHandler, MouseMoveHandler, MouseUpHandler{
 
     Canvas canvas;
     Canvas backbuffer;
@@ -35,7 +35,11 @@ public class ExtendedCanvas  implements MouseWheelHandler{
     private double mPosX = 0;
     private double mPosY = 0;
 
-    double totalZoom = 1;
+    boolean mouseDown = false;
+    double mouseDownXPos = 0;
+    double mouseDownYPos = 0;
+
+    double zoom = 1;
     double offsetX = 0;
     double offsetY = 0;
 
@@ -48,6 +52,9 @@ public class ExtendedCanvas  implements MouseWheelHandler{
         backBufferContext = backbuffer.getContext2d();
 
         canvas.addMouseWheelHandler(this);
+        canvas.addMouseMoveHandler(this);
+        canvas.addMouseDownHandler(this);
+        canvas.addMouseUpHandler(this);
 
     }
 
@@ -119,30 +126,11 @@ public class ExtendedCanvas  implements MouseWheelHandler{
                     fitToScreen(getCanvasWitdh(),getCanvasHeight(), getCanvasWitdh()/2, getCanvasHeight() /2);
 
                 }
-                //TODO: this is wrong here. The extendedCanvas doesn't have to know about what the doubleclick does
-                //Find where to move this
-                //setSize();
-                //fitToScreen(getCanvasWitdh(), getCanvasHeight(), 0, 0);
-            }
-        });
-
-        canvas.addMouseMoveHandler(new MouseMoveHandler() {
-            @Override
-            public void onMouseMove(final MouseMoveEvent event) {
-                if (selectedLayer != null) {
-                    final DrawableElement de = getElementUnderCoordinates(event.getX(), event.getY());
-                    if ((de == null && elementUnderMouse != null) || (de != null && elementUnderMouse != null && de != elementUnderMouse))
-                        elementUnderMouse.OnMouseLeft(canvas);
-                    if (de != null) {
-                        de.OnMouseOver(canvas);
-                        elementUnderMouse = de;
-                    }
-                }
             }
         });
 
     }
-
+     //http://stackoverflow.com/questions/16284284/how-to-smoothly-zoom-a-canvas
     public void onMouseWheel(MouseWheelEvent event) {
         int move = event.getDeltaY();
 
@@ -151,22 +139,20 @@ public class ExtendedCanvas  implements MouseWheelHandler{
 
 
         double scale = 1;
-        double zoom;
         if (move < 0) {
-            scale = mScaleFactor *1.1;
             zoom = 1.1;
         } else {
-            scale = mScaleFactor / 1.1;
             zoom = 1 / 1.1;
         }
 
-        double newX = xPos / mScaleFactor;
-        double newY = yPos / mScaleFactor;
+        double newX = (xPos - mPosX)/ mScaleFactor;
+        double newY = (yPos - mPosY)/ mScaleFactor;
 
-        double xPosition = (-newX * scale) + newX;
-        double yPosition = (-newY * scale) + newY;
+        double xPosition = (-newX * zoom) + newX;
+        double yPosition = (-newY * zoom) + newY;
 
-        centerAndScale(xPosition, yPosition, scale, true);
+        mScaleFactor = mScaleFactor * zoom;
+        centerAndScale(xPosition * mScaleFactor, yPosition* mScaleFactor, mScaleFactor, true);
 
         //offsetX += (xPosition * mScaleFactor);
         //offsetY += (mPosY * mScaleFactor);
@@ -185,22 +171,72 @@ public class ExtendedCanvas  implements MouseWheelHandler{
         //buffer(backContext, context);
     }
 
+    public void onMouseDown(MouseDownEvent event) {
+        this.mouseDown = true;
+        mouseDownXPos = event.getRelativeX(canvas.getElement());
+        mouseDownYPos = event.getRelativeY(canvas.getElement());
+
+    }
+
+    public void onMouseMove(MouseMoveEvent event) {
+        if (mouseDown) {
+            double xPos = event.getRelativeX(canvas.getElement());
+            double yPos = event.getRelativeY(canvas.getElement());
+            double deltaX = xPos - mouseDownXPos;
+            double deltaY = yPos -mouseDownYPos;
+            mPosX +=deltaX;
+            mPosY +=deltaY;
+            paint(false);
+
+            mouseDownXPos = xPos;
+            mouseDownYPos = yPos;
+        }
+        else
+        {
+            if (selectedLayer != null) {
+                final DrawableElement de = getElementUnderCoordinates(event.getX(), event.getY());
+                if ((de == null && elementUnderMouse != null) || (de != null && elementUnderMouse != null && de != elementUnderMouse))
+                    elementUnderMouse.OnMouseLeft(canvas);
+                if (de != null) {
+                    de.OnMouseOver(canvas);
+                    elementUnderMouse = de;
+                }
+            }
+
+
+        }
+    }
+
+    public void onMouseUp(MouseUpEvent event) {
+        this.mouseDown = false;
+    }
 
 
     boolean invalid = true;
-    void draw() {
-        if (invalid) {
-            backBufferContext.clearRect(0, 0, getCanvasWitdh(), getCanvasHeight());
+    void draw()
+    {
+        draw(true);
 
-            for (Layer layer : layers.values()) {
-                layer.draw();
-            }
-            invalid = false;
+    }
+
+    void draw(boolean redraw) {
+        if (invalid) {
+            paint(redraw);
+
+        }
+    }
+    void paint(boolean redraw)
+    {
+        backBufferContext.clearRect(0, 0, getCanvasWitdh(), getCanvasHeight());
+
+        for (Layer layer : layers.values()) {
+            layer.draw(redraw);
         }
         ctx.clearRect(0, 0, getCanvasWitdh(), getCanvasHeight());
         ctx.drawImage(backBufferContext.getCanvas(), 0, 0);
 
     }
+
     public void Invalidate()
     {
         invalid = true;
@@ -330,8 +366,6 @@ public class ExtendedCanvas  implements MouseWheelHandler{
         private double startY;
         private double endX;
         private double endY;
-        private double vectorX;
-        private double vectorY;
         private double startScale;
         private double endScale;
         private boolean animateX;
