@@ -5,6 +5,7 @@ import com.freedomotic.clients.client.widgets.LayerList;
 import com.freedomotic.model.environment.Environment;
 import com.freedomotic.model.environment.Zone;
 import com.freedomotic.model.object.EnvObject;
+import com.google.gwt.animation.client.AnimationScheduler;
 import com.google.gwt.canvas.client.Canvas;
 import com.google.gwt.event.logical.shared.ResizeEvent;
 import com.google.gwt.event.logical.shared.ResizeHandler;
@@ -26,8 +27,6 @@ public class EnvironmentWidget {
     boolean dataInitialized = false;
     boolean layerControllerAttached = false;
     //timer refresh rate, in milliseconds
-    static final int refreshRate = 25;
-
     private static final double MARGIN = 50;
 
     private Widget parent;
@@ -40,23 +39,25 @@ public class EnvironmentWidget {
         this.parent = parent;
         initCanvas();
 
-        // setup timer
-        final Timer timer = new Timer() {
-            @Override
-            public void run() {
-                if (dataInitialized) {
-                    if (!layerControllerAttached && mLayerList!= null) {
-                        mLayerList.populateData(extendedCanvas.getLayers());
-                        layerControllerAttached = true;
-                    }
 
-                    extendedCanvas.draw();
-                } else {
-                    initializeData();
-                }
-            }
-        };
-        timer.scheduleRepeating(refreshRate);
+        //Use instead of a timer
+        AnimationScheduler.get().requestAnimationFrame(
+            new AnimationScheduler.AnimationCallback()
+            {
+               @Override
+               public void execute(double v) {
+                   if (dataInitialized) {
+                       if (!layerControllerAttached && mLayerList!= null) {
+                           mLayerList.populateData(extendedCanvas.getLayers());
+                           layerControllerAttached = true;
+                       }
+                        extendedCanvas.draw();
+                   } else {
+                       initializeData();
+                   }
+                   AnimationScheduler.get().requestAnimationFrame(this);
+               }
+            });
 
         Window.addResizeHandler(new ResizeHandler() {
             @Override

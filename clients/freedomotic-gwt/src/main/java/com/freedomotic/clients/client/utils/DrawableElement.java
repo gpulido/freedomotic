@@ -62,7 +62,10 @@ public abstract class DrawableElement {
         Color c = new Color(getIndexColor());
         //I think this doesn't eed to be here
         WebGraphics gIndex = new WebGraphics(indexContext);
+
         gIndex.setFillColor(c);
+        gIndex.setColor(c);
+        gIndex.draw(elementBounds);
         gIndex.fill(elementBounds);
 
     }
