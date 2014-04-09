@@ -74,10 +74,11 @@ public class DrawableRoom extends DrawableElement {
     {}
 
     @Override
-    public void OnDoubleClick(Canvas canvas)
+    public boolean OnDoubleClick(Canvas canvas)
     {
 
         parentCanvas.fitToScreen(roomBounds.getWidth(), roomBounds.getHeight(), roomBounds.getCenterX(), roomBounds.getCenterY());
+        return true;
     }
 
     @Override

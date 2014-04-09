@@ -15,7 +15,7 @@ import java.util.ListIterator;
 /**
  * Created by gpt on 31/03/14.
  */
-public class ExtendedCanvas {
+public class ExtendedCanvas  implements MouseWheelHandler{
 
     Canvas canvas;
     Canvas backbuffer;
@@ -34,6 +34,11 @@ public class ExtendedCanvas {
     private double mScaleFactor = 1;
     private double mPosX = 0;
     private double mPosY = 0;
+
+    double totalZoom = 1;
+    double offsetX = 0;
+    double offsetY = 0;
+
     //private DockLayoutPanel parent;
 
     public ExtendedCanvas() {
@@ -41,6 +46,9 @@ public class ExtendedCanvas {
         backbuffer = Canvas.createIfSupported();
         ctx = canvas.getContext2d();
         backBufferContext = backbuffer.getContext2d();
+
+        canvas.addMouseWheelHandler(this);
+
     }
 
     public int getCanvasWitdh()
@@ -105,14 +113,16 @@ public class ExtendedCanvas {
                 if (selectedLayer != null) {
                     final DrawableElement de = selectedLayer.getElementUnderCoordinates(event.getX(), event.getY());
                     if (de != null) {
-                        de.OnDoubleClick(canvas);
-                        return;
+                        if (de.OnDoubleClick(canvas))
+                            return;
                     }
+                    fitToScreen(getCanvasWitdh(),getCanvasHeight(), getCanvasWitdh()/2, getCanvasHeight() /2);
+
                 }
                 //TODO: this is wrong here. The extendedCanvas doesn't have to know about what the doubleclick does
                 //Find where to move this
-                setSize();
-                fitToScreen(getCanvasWitdh(), getCanvasHeight(), 0, 0);
+                //setSize();
+                //fitToScreen(getCanvasWitdh(), getCanvasHeight(), 0, 0);
             }
         });
 
@@ -133,6 +143,50 @@ public class ExtendedCanvas {
 
     }
 
+    public void onMouseWheel(MouseWheelEvent event) {
+        int move = event.getDeltaY();
+
+        double xPos = (event.getRelativeX(canvas.getElement()));
+        double yPos = (event.getRelativeY(canvas.getElement()));
+
+
+        double scale = 1;
+        double zoom;
+        if (move < 0) {
+            scale = mScaleFactor *1.1;
+            zoom = 1.1;
+        } else {
+            scale = mScaleFactor / 1.1;
+            zoom = 1 / 1.1;
+        }
+
+        double newX = xPos / mScaleFactor;
+        double newY = yPos / mScaleFactor;
+
+        double xPosition = (-newX * scale) + newX;
+        double yPosition = (-newY * scale) + newY;
+
+        centerAndScale(xPosition, yPosition, scale, true);
+
+        //offsetX += (xPosition * mScaleFactor);
+        //offsetY += (mPosY * mScaleFactor);
+
+
+       // backContext.clearRect(0, 0, width, height);
+
+       // backContext.translate(xPosition, yPosition);
+
+       // backContext.scale(zoom, zoom);
+
+
+
+        //totalZoom = totalZoom * mScaleFactor;
+        //Invalidate();
+        //buffer(backContext, context);
+    }
+
+
+
     boolean invalid = true;
     void draw() {
         if (invalid) {
@@ -141,7 +195,6 @@ public class ExtendedCanvas {
             for (Layer layer : layers.values()) {
                 layer.draw();
             }
-            ctx.clearRect(0, 0, getCanvasWitdh(), getCanvasHeight());
             invalid = false;
         }
         ctx.clearRect(0, 0, getCanvasWitdh(), getCanvasHeight());
@@ -191,16 +244,16 @@ public class ExtendedCanvas {
         else
             scale = yScale;
 
-        double centerX = posX -  centerCanvasScaledX / scale;
-        double centerY = posY -  centerCanvasScaledY / scale;
+        double centerX =  centerCanvasScaledX / scale - posX;
+        double centerY = centerCanvasScaledY / scale - posY;
         centerAndScale(centerX, centerY, scale, true);
         //updateElements();
 
     }
     public void centerAndScale(double posX, double posY, double scale, boolean animation)
     {
-        MoveWithAnimation moveAnimation = new MoveWithAnimation(mPosX, mPosY, -posX, -posY, mScaleFactor, scale);
-        moveAnimation.run(100);
+        MoveWithAnimation moveAnimation = new MoveWithAnimation(mPosX, mPosY, posX, posY, mScaleFactor, scale);
+        moveAnimation.run(500);
 
     }
 
@@ -281,6 +334,9 @@ public class ExtendedCanvas {
         private double vectorY;
         private double startScale;
         private double endScale;
+        private boolean animateX;
+        private boolean animateY;
+        private boolean animateScale;
 
         public MoveWithAnimation(double startX, double startY, double endX, double endY, double startScale, double endScale) {
             this.startX = startX;
@@ -289,15 +345,18 @@ public class ExtendedCanvas {
             this.endY = endY;
             this.startScale = startScale;
             this.endScale = endScale;
+            animateX = (startX != endX);
+            animateY = (startY != endY);
+            animateScale = (startScale != endScale);
 
 
 
         }
         @Override
         protected void onUpdate(double progress) {
-            mPosX = extractProportionalValue(progress, startX, endX);
-            mPosY = extractProportionalValue(progress, startY, endY);
-            mScaleFactor = extractProportionalValue(progress, startScale, endScale);
+            if (animateX) mPosX = extractProportionalValue(progress, startX, endX);
+            if (animateY) mPosY = extractProportionalValue(progress, startY, endY);
+            if (animateScale) mScaleFactor = extractProportionalValue(progress, startScale, endScale);
             invalid = true;
         }
 
