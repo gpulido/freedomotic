@@ -68,8 +68,9 @@ public class Freedomotic implements EntryPoint {
         Images images = GWT.create(Images.class);
         Cookies.removeCookie("broker_ip");
         brokerIp = Cookies.getCookie("broker_ip");
+        MyDockLayoutPanel myDockLayoutPanel = new MyDockLayoutPanel();
 
-        DockLayoutPanel myDockLayoutPanel = new DockLayoutPanel(Unit.EM);
+       /* DockLayoutPanel myDockLayoutPanel = new DockLayoutPanel(Unit.EM);
         final AbsolutePanel centerPanel = new AbsolutePanel();
         // draw the environment
         final EnvironmentWidget floorPlan = new EnvironmentWidget(centerPanel);
@@ -147,7 +148,7 @@ public class Freedomotic implements EntryPoint {
 //		if (brokerIp==null)
 //		{
 //			showConfigurationDialog();
-//		}
+//		}     */
 
 
     }

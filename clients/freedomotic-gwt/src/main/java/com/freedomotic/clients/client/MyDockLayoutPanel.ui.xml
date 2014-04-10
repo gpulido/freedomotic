@@ -1,0 +1,66 @@
+<ui:UiBinder xmlns:ui='urn:ui:com.google.gwt.uibinder'
+             xmlns:g='urn:import:com.google.gwt.user.client.ui'>
+    <ui:image field="bgImage" src="./resources/background.png"/>
+    <ui:style>
+
+        .eastPanel {
+            background-color: #89ae20;
+        }
+
+        .westPanel {
+            background-color:  #39F;
+        }
+
+        .northPanel {
+            background-color: #39F;
+        }
+
+        .southPanel {
+            background-color: #99C;
+        }
+
+        .centerPanel {
+            background-color: #FFC;
+        }
+        .header_panel {
+            gwt-image: 'bgImage';
+            background-repeat:repeat;
+
+        }
+    </ui:style>
+    <g:DockLayoutPanel unit='EM'>
+        <g:north size="10" >
+                <g:HTMLPanel >
+                    <g:SimplePanel ui:field="myImage"  >
+                        <!--<svg:SVGImage ui:field="myImage" resource="{resources.logo}"/>-->
+                     </g:SimplePanel>
+                </g:HTMLPanel>
+        </g:north>
+        <g:west size='10'>
+            <g:FlowPanel addStyleNames="{style.westPanel}">
+                <g:Label>This is the WEST panel</g:Label>
+            </g:FlowPanel>
+        </g:west>
+        <g:west size='10'>
+            <g:FlowPanel styleName="{style.westPanel}">
+                <g:Label>This is the WEST panel 2</g:Label>
+            </g:FlowPanel>
+        </g:west>
+        <g:center>
+            <g:FlowPanel styleName="{style.westPanel}">
+                <g:Label>This is the WEST panel</g:Label>
+            </g:FlowPanel>
+
+        </g:center>
+        <g:east size='15'>
+            <g:FlowPanel styleName="{style.eastPanel}">
+                <g:Label>This is the EAST panel</g:Label>
+            </g:FlowPanel>
+        </g:east>
+        <g:south size="5">
+            <g:FlowPanel styleName="{style.southPanel}">
+                <g:Label>This is the SOUTH panel</g:Label>
+            </g:FlowPanel>
+        </g:south>
+    </g:DockLayoutPanel>
+</ui:UiBinder>
