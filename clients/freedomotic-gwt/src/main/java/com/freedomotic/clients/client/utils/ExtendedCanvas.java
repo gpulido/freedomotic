@@ -7,6 +7,8 @@ import com.google.gwt.canvas.dom.client.CssColor;
 import com.google.gwt.event.dom.client.*;
 import com.google.gwt.user.client.Window;
 
+import java.awt.*;
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -124,7 +126,6 @@ public class ExtendedCanvas  implements MouseWheelHandler , MouseDownHandler, Mo
                             return;
                     }
                     fitToScreen(getCanvasWitdh(),getCanvasHeight(), getCanvasWitdh()/2, getCanvasHeight() /2);
-
                 }
             }
         });
@@ -151,30 +152,14 @@ public class ExtendedCanvas  implements MouseWheelHandler , MouseDownHandler, Mo
         double xPosition = (-newX * zoom) + newX;
         double yPosition = (-newY * zoom) + newY;
 
-        mScaleFactor = mScaleFactor * zoom;
-        centerAndScale(xPosition * mScaleFactor, yPosition* mScaleFactor, mScaleFactor, true);
+        centerAndScale(mPosX + xPosition* mScaleFactor * zoom, mPosY + yPosition * mScaleFactor * zoom, mScaleFactor*zoom, true);
 
-        //offsetX += (xPosition * mScaleFactor);
-        //offsetY += (mPosY * mScaleFactor);
-
-
-       // backContext.clearRect(0, 0, width, height);
-
-       // backContext.translate(xPosition, yPosition);
-
-       // backContext.scale(zoom, zoom);
-
-
-
-        //totalZoom = totalZoom * mScaleFactor;
-        //Invalidate();
-        //buffer(backContext, context);
     }
 
     public void onMouseDown(MouseDownEvent event) {
-        this.mouseDown = true;
         mouseDownXPos = event.getRelativeX(canvas.getElement());
         mouseDownYPos = event.getRelativeY(canvas.getElement());
+        this.mouseDown = true;
 
     }
 
@@ -182,10 +167,10 @@ public class ExtendedCanvas  implements MouseWheelHandler , MouseDownHandler, Mo
         if (mouseDown) {
             double xPos = event.getRelativeX(canvas.getElement());
             double yPos = event.getRelativeY(canvas.getElement());
-            double deltaX = xPos - mouseDownXPos;
-            double deltaY = yPos -mouseDownYPos;
-            mPosX +=deltaX;
-            mPosY +=deltaY;
+            double deltaX =  mouseDownXPos -xPos;
+            double deltaY =  mouseDownYPos -yPos;;
+            mPosX -=deltaX;
+            mPosY -=deltaY;
             paint(false);
 
             mouseDownXPos = xPos;
@@ -261,6 +246,20 @@ public class ExtendedCanvas  implements MouseWheelHandler , MouseDownHandler, Mo
         return backBufferContext;
     }
 
+    public void centerToRectangle(Rectangle2D elementBounds)
+    {
+        double xScale = getCanvasWitdh() / elementBounds.getWidth();
+        double yScale = getCanvasHeight() / elementBounds.getHeight();
+        double scale = 1;
+        if (xScale < yScale) {
+            scale = xScale;
+        }
+        else
+            scale = yScale;
+        double dX = (elementBounds.getMaxX() - elementBounds.getMinX())/2 *scale - getCanvasWitdh() / 2;//elementBounds.getMinX() *scale;
+        double dY = (elementBounds.getMaxY() - elementBounds.getMinY())/2 * scale - getCanvasHeight()/2;//elementBounds.getMinY()*scale;
+        centerAndScale(-dX - elementBounds.getMinX() *scale,- dY -elementBounds.getMinY() *scale, scale, true);
+    }
 
     //Adapt the "original coordinates" from freedomotic to the canvas size
     public void fitToScreen(double width, double height, double posX, double posY) {
@@ -270,8 +269,8 @@ public class ExtendedCanvas  implements MouseWheelHandler , MouseDownHandler, Mo
 
         double xScale = xSize / width;
         double yScale = ySize / height;
-        double centerCanvasScaledX = (getCanvasWitdh() / 2);
-        double centerCanvasScaledY = (getCanvasHeight() / 2);
+        double centerCanvasX = (getCanvasWitdh() );
+        double centerCanvasY = (getCanvasHeight());
 
         double scale;
         if (xScale < yScale) {
@@ -280,10 +279,9 @@ public class ExtendedCanvas  implements MouseWheelHandler , MouseDownHandler, Mo
         else
             scale = yScale;
 
-        double centerX =  centerCanvasScaledX / scale - posX;
-        double centerY = centerCanvasScaledY / scale - posY;
-        centerAndScale(centerX, centerY, scale, true);
-        //updateElements();
+        double centerX =  centerCanvasX - posX;
+        double centerY = centerCanvasY - posY;
+        centerAndScale(-posX / scale, -posY /scale, scale, true);
 
     }
     public void centerAndScale(double posX, double posY, double scale, boolean animation)

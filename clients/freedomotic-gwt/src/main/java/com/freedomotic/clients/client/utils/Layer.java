@@ -110,10 +110,11 @@ public class Layer  {
             indexContext.save();
             //TODO: if the scale and the position are linked to the extended canvas, why store on each element? Use the parentCanvasOne
             //Also, why not just scale and translate the context once for each object?
-            context.scale(mparentCanvas.getScaleFactor(), mparentCanvas.getScaleFactor());
-            indexContext.scale(mparentCanvas.getScaleFactor(), mparentCanvas.getScaleFactor());
             context.translate(mparentCanvas.getPosX(),mparentCanvas.getPosY());
             indexContext.translate(mparentCanvas.getPosX(),mparentCanvas.getPosY());
+            context.scale(mparentCanvas.getScaleFactor(), mparentCanvas.getScaleFactor());
+            indexContext.scale(mparentCanvas.getScaleFactor(), mparentCanvas.getScaleFactor());
+
             if (redraw) {
                 for (DrawableElement de : objectsInLayer.values()) {
                     de.draw(context, indexContext);
