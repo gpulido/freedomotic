@@ -49,6 +49,11 @@
       <artifactId>gwt-codeserver</artifactId>
       <version>${gwtVersion}</version>
   </dependency>
+      <dependency>
+          <groupId>org.vectomatic</groupId>
+          <artifactId>lib-gwt-svg</artifactId>
+          <version>0.5.9</version>
+      </dependency>
     <dependency>
       <groupId>com.google.gwt</groupId>
       <artifactId>gwt-user</artifactId>
@@ -111,11 +116,7 @@
           <artifactId>org.restlet.ext.servlet</artifactId>
           <version>2.1.7</version>
       </dependency>
-      <dependency>
-          <groupId>org.vectomatic</groupId>
-          <artifactId>lib-gwt-svg</artifactId>
-          <version>0.5.9</version>
-      </dependency>
+
       <dependency>
           <groupId>com.levigo</groupId>
           <artifactId>gwt-awt</artifactId>

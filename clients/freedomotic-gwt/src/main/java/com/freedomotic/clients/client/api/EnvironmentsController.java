@@ -97,7 +97,7 @@ public class EnvironmentsController {
             StompJS.install();
             GWT.log("stomp.js installed.");
             cb = new ACStompCallback();
-            sc = new StompClient("ws://" + broker_ip + ":61614/stomp", cb);
+            sc = new StompClient("wss://" + broker_ip + ":61614/stomp", cb);
             cb.setClient(sc);
             sc.connect();
             return true;

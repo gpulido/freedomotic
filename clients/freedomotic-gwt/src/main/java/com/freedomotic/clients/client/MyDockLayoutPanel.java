@@ -14,21 +14,32 @@ import org.vectomatic.dom.svg.ui.SVGImage;
 /**
  * Created by gpt on 10/04/14.
  */
-public class MyDockLayoutPanel {
-    interface MyDockLayoutPanelUiBinder extends UiBinder<Widget, MyDockLayoutPanel> {
-    }
+public class MyDockLayoutPanel{
+    interface MyBinder extends UiBinder<Widget, MyDockLayoutPanel> { }
 
-    private static MyDockLayoutPanelUiBinder ourUiBinder = GWT.create(MyDockLayoutPanelUiBinder.class);
-    @UiField(provided = true)
-    SimplePanel myImage = new SimplePanel();
+    private static MyBinder ourUiBinder = GWT.create(MyBinder.class);
+
+    @UiField
+    SVGImage logo;
 
     public MyDockLayoutPanel() {
+        //this.logo = new SVGImage();
 
         //DivElement rootElement = ourUiBinder.createAndBindUi(this);
-
         Widget rootElement = ourUiBinder.createAndBindUi(this);
         RootLayoutPanel.get().add(rootElement);
 
+        OMSVGSVGElement svg =(OMSVGSVGElement)logo.getSvgElement();
+        OMSVGRect viewBox = svg.getViewBox().getBaseVal();
+        if (viewBox.getWidth() == 0 || viewBox.getHeight() == 0) {
+            OMSVGRect bbox = svg.getBBox();
+            bbox.assignTo(viewBox);
+        }
+        svg.getStyle().setWidth(300, Style.Unit.PX);
+        svg.getStyle().setHeight(130, Style.Unit.PX);
+
+
+/*
         final OMSVGSVGElement svg = FreedomoticBundle.INSTANCE.logo().getSvg();
         SVGImage mySvgImage = new SVGImage(svg) {
             protected void onAttach() {
@@ -43,9 +54,9 @@ public class MyDockLayoutPanel {
             }
         };
         mySvgImage.setStyleName("logo");
-        myImage.add(mySvgImage);
-        myImage.setStyleName("header_panel");
-
+       // myImage.add(mySvgImage);
+        myImage.setStyleName("header_panel");*/
+//
 
     }
 }
